@@ -1,7 +1,8 @@
 <div sytle="text-align: center;">
 
 ## Real Minesweepr Operating System
-![](./docs/logo.jpeg)
+
+![](./docs/logo.png)
 
 </div>
 
@@ -21,3 +22,5 @@ Real Minesweepr Operating system project.
 - Email : insung.park123@gmail.com
 
 ### 이민형 (Lee min hyeong)
+
+- Email : kesm03122@gmail.com 
