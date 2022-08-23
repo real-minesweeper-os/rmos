@@ -4,27 +4,6 @@ ORG 0
 %include 'c16.mac'
 
 ;======================
-; Message out function
-;======================
-proc    msg_out
-        pusha
-
-        mov si, WORD [bp+4]
-
-.print:
-        lodsb
-        or  al, al
-        jz  .out
-        mov ah, 0eh
-        mov bx, 08h
-        int 10h
-        jmp .print
-
-.out:
-        popa
-endproc
-
-;======================
 ; Boot records
 ;======================
 
@@ -52,31 +31,89 @@ dd  0
 db  'RMOS BIN'
 db  'FAT12'
 
-; init video
-mov ax, 0600h
-mov bh, 07h
-xor cx, cx
-mov dx, 1850h   ; row: 24,
-                ; columns: 80
-int 10h
-mov ah, 02h
-xor bh, bh
-xor dx, dx
-int 10h
+; ====================
+; main bootsector code
+; =====================
 
-;------------------
-; loading message
-;------------------
-push msg_loading
-call msg_out
-add sp, 2
+%define BOOTSEG 07c0h
+%define INITSEG 0100h
+%define INITSS  01000h
+%define INITSP  0ffffh
 
-; reset disk system
-xor ah, ah
-mov dl, 00h
-int 13h
+%define FATSEG  0120h
+%define DIRSEG  0240h
+%define LDRSEG  02000h
 
-msg_loading db  'Loading...', 00h
+entry:
+        cli
+        mov ax, INITSS
+        mov ss, ax
+        mov sp, INITSP
+        sti
+
+        ; re-load
+        cld
+        mov ax, INITSEG
+        mov es, ax
+        xor di, di
+        mov ax, BOOTSEG
+        mov ds, ax
+        xor si, si
+        mov cx, 100h
+        repz    movsw
+
+        jmp INITSEG:main
+
+main:
+        mov ax, INITSEG
+        mov ds, ax
+
+        ; init video
+        mov ax, 0600h
+        mov bh, 07h
+        xor cx, cx
+        mov dx, 1850h   ; row: 24,
+                        ; columns: 80
+        int 10h
+        mov ah, 02h
+        xor bh, bh
+        xor dx, dx
+        int 10h
+
+        push msg_loading
+        call msg_out
+        add sp, 2
+
+        xor ah, ah
+        mov dl, 00h
+        int 13h
+
+;======================
+; Message out function
+;======================
+proc    msg_out
+        pusha
+
+        mov si, WORD [bp+4]
+
+.print:
+        lodsb
+        or  al, al
+        jz  .out
+        mov ah, 0eh
+        mov bx, 08h
+        int 10h
+        jmp .print
+
+.out:
+        popa
+endproc
+
+;===================================
+; print message as starting Loading
+;===================================
+msg_loading     db      'Welcome to "REAL-MINESWEEPERS OPERATING SYSTEM".', 00h
+;                db      'Starting Loading...', 00h 
 
 ;-------------------
 ; boot signature
