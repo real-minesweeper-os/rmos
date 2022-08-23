@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/bahk_insung/Documents/Github/rmos'
+make: Leaving directory `/Users/bahk_insung/Documents/Github/rmos'
+ 
+Makefile:7: *** missing separator.  Stop.
+
