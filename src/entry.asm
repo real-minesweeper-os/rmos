@@ -154,3 +154,57 @@ _m_GdtTable     dd      0
     db 01h 
     db 11101100b 
     dw 0000h 
+
+;=====================================
+; GDT Table descriptor
+;=====================================
+    ALIGN4
+
+_m_GdtrDesc dw  GDT_SIZE-1
+            dd  _m_GdtTable
+
+;======================================
+; DECLARE MACROs
+;======================================
+LGDT16  MACROaddr
+    db 3eh
+    db 67h 
+    db 0fh 
+    db 01h 
+    db 15h 
+    dd addr
+ENDM 
+
+;=======================================
+; FJMP16 Description
+;=======================================
+FJMP16 MACROselector, offset
+    db 66h 
+    db 0eah 
+    dd offset
+    dw selector
+ENDM
+
+;========================================
+; 32bit routine
+;========================================
+EntryPoint32    PROC    NEAR
+    mov ax, 10h
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov esp, 1ffffh
+
+    mov eax, 0B8000h
+    mov bx, 0749h
+    mov word ptr [eax], bx
+    jmp $
+    call _rmos_init
+
+infinate:
+    hlt
+    jmp infinate
+
+EntryPoint32    ENDP
